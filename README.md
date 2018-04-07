@@ -14,4 +14,4 @@
 
 * 目前还没有办法将在.vue文件里面的样式文件抽取出去，因为加入vue-loader-config就出事了
 
-* font-awesome的css也米有抽取出去
+* font-awesome的css也没有抽取出去
