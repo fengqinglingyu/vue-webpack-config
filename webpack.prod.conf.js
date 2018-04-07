@@ -5,7 +5,6 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const commonWebpackConfig = require('./webpack.common.conf');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
@@ -22,13 +21,11 @@ const webpackConfig = merge(commonWebpackConfig, {
   /** 开发工具，如果配置源映射请把这个项目改成source-map */
   devtool: false,
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(__dirname, '../dist-test'),
     filename: utils.assetsPath('js/[name].[chunkhash].js'),
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
   },
   plugins: [
-    /* 生成文件之前，先清除之前生成的dist */
-    new CleanWebpackPlugin([path.resolve(__dirname, '../dist')]),
     /* 定义全局环境为生产环境 */
     new webpack.DefinePlugin({
       'process.env': env
@@ -55,8 +52,7 @@ const webpackConfig = merge(commonWebpackConfig, {
     /**
      *  将内嵌的在JS bundle里面的样式
      *  分离成一个单独的css文件，减少页面的<style>标签
-     *  使用这个插件会强制使用devtool:source-map，当然，不会影响其他插件
-     *  会延长编译的时间
+     *  请不要在开发环境中使用这个插件，因为这个插件会影响热重载
      */
     new ExtractTextPlugin({
       filename: utils.assetsPath('css/[name].[contenthash].css'),
@@ -78,15 +74,13 @@ const webpackConfig = merge(commonWebpackConfig, {
      */
     new OptimizeCSSPlugin(),
     // new OptimizeCSSPlugin({
-    //   cssProcessorOptions: config.build.productionSourceMap
-    //     ? { safe: true, map: { inline: false } }
-    //     : { safe: true }
-    // })
+    //   cssProcessorOptions: { safe: true, map: { inline: false } }
+    // }),
     /**
      * 生成HTML文件，并且引用js和css
      */
     new HtmlWebpackPlugin({
-      filename: path.resolve(__dirname, '../dist/index.html'), //生成html的文件名
+      filename: path.resolve(__dirname, '../dist-test/index.html'), //生成html的文件名
       template: 'src/index.html' // 依据的模板
       /* 这部分可以使用默认配置，html就算压缩也省不了几个Byte
       inject: true, // 是否将js文件放在body里面，默认为true
@@ -122,7 +116,20 @@ const webpackConfig = merge(commonWebpackConfig, {
      */
     new webpack.optimize.CommonsChunkPlugin({
       name: 'mainifest',
-      chunks: ['vendor']
+      minChunks: Infinity
+    }),
+    /**
+     * 从代码块里面抽取公共模块
+     * 类似vendor chunk，翻译水平有限，请详细看英文介绍或者英文文档
+     * This instance extracts shared chunks from code splitted chunks and bundles them
+     * in a separate chunk, similar to the vendor chunk
+     * see: https://webpack.js.org/plugins/commons-chunk-plugin/#extra-async-commons-chunk
+     */
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'index',
+      async: 'vendor-async',
+      children: true,
+      minChunks: 3
     })
   ]
 });

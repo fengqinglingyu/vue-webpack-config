@@ -1,10 +1,11 @@
 'use strict';
 const path = require('path');
 const assetsPath = require('./utils').assetsPath;
+const vueLoaderConfig = require('./vue-loader.conf');
 const resolve = dir => {
   return path.join(__dirname, '..', dir);
 };
- 
+
 module.exports = {
   /**
    * 基础目录，绝对路径，用于从配置中解析入口起点(entry point)和加载器(loader)
@@ -48,7 +49,8 @@ module.exports = {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        loader: 'vue-loader',
+        options: vueLoaderConfig
       },
       {
         test: /\.(js|jsx)$/,
