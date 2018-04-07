@@ -50,7 +50,7 @@ module.exports = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: vueLoaderConfig
+        // options: vueLoaderConfig 加入这条是为了抽取.vue里面的css到公共的css文件的，但是目前好像加了会出事
       },
       {
         test: /\.(js|jsx)$/,
